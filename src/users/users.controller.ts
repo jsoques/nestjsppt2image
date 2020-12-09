@@ -1,6 +1,6 @@
-import { Controller, Get, Param, Post, Body, ValidationPipe, UsePipes } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, ValidationPipe, UsePipes, ForbiddenException, UnauthorizedException, HttpCode } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './user.entity';
+import { User } from '../auth/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -11,15 +11,24 @@ export class UsersController {
         return this.userService.getUserByEmail(email);
     }
 
-    @Post()
+    @Post('/create')
     @UsePipes(ValidationPipe)
-    createUser(@Body() newUser: User): Promise<User> {
-        console.log('New User', newUser);
-        return this.userService.createUser(newUser);
+    async createUser(@Body() newUser: User): Promise<any> {
+        const createdUser = await this.userService.createUser(newUser);
+        let rv = {};
+        rv['name'] = createdUser.name;
+        rv['email'] = createdUser.email;
+        return rv;
     }
 
-    @Post('/validate')
-    validateUser(@Body() user: User): Promise<string> {
-        return this.userService.validatePassword(user);
+    @Post('/login')
+    @HttpCode(200)
+    async login(@Body() user: User): Promise<any> {
+        const rv = await this.userService.validatePassword(user);
+        if (rv === null) {
+            throw new UnauthorizedException('Invalid credentials');
+        } else {
+            return rv;
+        }
     }
 }

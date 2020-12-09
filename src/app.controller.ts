@@ -30,9 +30,10 @@ export class AppController {
   }
 
   @Get()
-  getUpdateFile(): string {
+  getUpdateFile(@Req() req: Request): string {
     console.log(join(__dirname, 'templates/fileupload.html'));
-    const api = os.platform() === 'linux' ? '/api/' : ''; //My DigitalOcean is using nginx reverse proxy with location /api
+    let api = os.platform() === 'linux' ? '/api/' : ''; //My DigitalOcean is using nginx reverse proxy with location /api
+    api = req['host'] == 'localhost' ? '' : '/api/';
     console.log('api', api);
     const html = fs.readFileSync(join(__dirname, 'templates/fileupload.html'), 'utf8').replace(/{{api}}/g, api);
     return html;
@@ -40,8 +41,8 @@ export class AppController {
 
   @Get('links')
   async getLinks(@Req() req: Request): Promise<string> {
-    const api = os.platform() === 'linux' ? '/api/' : ''; //My DigitalOcean is using nginx reverse proxy with location /api
-    
+    let api = os.platform() === 'linux' ? '/api/' : ''; //My DigitalOcean is using nginx reverse proxy with location /api
+    api = req['host'] == 'localhost' ? '' : '/api/';
     let html = fs.readFileSync(join(__dirname, 'templates/base.html'), 'utf8').replace(/{{api}}/g, api);
     const curdir = fs.realpathSync('.');
     const imgdir = curdir + path.sep + 'images';
@@ -50,7 +51,8 @@ export class AppController {
     let protocol = req.headers['x-forwarded-proto'] !== undefined ? req.headers['x-forwarded-proto'] : req['protocol'];
     const baseurl = protocol + '://' + req.headers['host'];
     console.log('baseurl', baseurl);
-    const referer = req.headers['referer'];
+    let referer = req.headers['referer'];
+    referer = String(referer).endsWith('/') ? String(referer).substring(0, String(referer).length - 1) : referer;
     console.log('referer', referer);
     const dir = await fs.promises.opendir(imgdir);
     let body = '';
@@ -86,7 +88,8 @@ export class AppController {
   async uploadFile(@UploadedFile() file, @Req() req: Request, @Res() res: Response) {
     console.log(file);
     console.log(`${file.path}`);
-    const refurl = req.headers['referer'] != undefined ? req.headers['referer'] : '';
+    let refurl = req.headers['referer'] != undefined ? req.headers['referer'] : '';
+    refurl = String(refurl).endsWith('/') ? String(refurl).substring(0, String(refurl).length - 1) : refurl;
     console.log('referer', refurl);
     const convert = await processFile(file.path, file.originalname);
     console.log(convert);

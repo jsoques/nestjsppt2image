@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Req, Request } from '@nestjs/common';
 import fs = require('fs');
 import os = require('os');
 import childProcess = require('child_process');
@@ -12,7 +12,7 @@ export class PresentationsController {
     }
 
     @Get(':imgpath')
-    async getImages(@Param('imgpath') imagepath) {
+    async getImages(@Param('imgpath') imagepath, @Req() req: Request) {
         console.log('imagepath', imagepath);
         const dir = await fs.promises.opendir('./images/' + imagepath);
         console.log('images', fs.realpathSync(dir.path));
@@ -20,7 +20,8 @@ export class PresentationsController {
         console.log('JSON stats', dir.path + '.json');
 
         let text = ``;
-        const api = os.platform() === 'linux' ? '/api' : ''; //My DigitalOcean is using nginx reverse proxy with location /api
+        let api = os.platform() === 'linux' ? '/api' : ''; //My DigitalOcean is using nginx reverse proxy with location /api
+        api = req['host'] == 'localhost' ? '' : '/api/';
 
         //Open JSON pre-process stat
         const jsonf0 = JSON.parse(fs.readFileSync(dir.path + '0.json').toString());

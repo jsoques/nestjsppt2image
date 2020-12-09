@@ -1,8 +1,0 @@
-[10:42 AM, 7/6/2020] Salvador Romero: 8192 MB Cloud Compute - 104.238.137.67
-IPv4 Address: 104.238.137.67
-OS: Windows 2016
-RAM: 8192 MB
-Storage: 160 GB
-Location: Miami
-Label: DentalLearning
-[10:43 AM, 7/6/2020] Salvador Romero: Administrator / $mH6DkTQL1zxa@]$

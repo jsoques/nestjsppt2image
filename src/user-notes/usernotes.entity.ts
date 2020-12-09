@@ -1,6 +1,6 @@
 import { Presentation } from "src/presentations/presentation.entity";
 import { PresentationPages } from "src/presentations/presentationpages.entity";
-import { User } from "src/users/user.entity";
+import { User } from "src/auth/user.entity";
 import { BaseEntity, Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
